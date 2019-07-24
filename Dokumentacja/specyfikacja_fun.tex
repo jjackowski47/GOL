@@ -1,0 +1,194 @@
+\documentclass[12pt,a4paper,notitlepage]{report}
+
+\usepackage{polski}
+
+\usepackage[T1]{fontenc}
+
+
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot  { \centering \thepage \hspace{1pt} $\backslash$ \pageref{LastPage}}
+\rhead{Automat komórkowy - Gra w życie}
+\lhead{Specyfikacja funkcjonalna}
+
+\makeatletter
+
+\newcommand{\linia}{\rule{\linewidth}{0.4mm}}
+
+\renewcommand{\maketitle}{\begin{titlepage}
+
+\thispagestyle{fancy}
+
+    \vspace*{1cm}
+
+    \begin{center}
+    
+    \Large
+
+    Specyfikacja funkcjonalna
+    
+    \end{center}
+
+    \vspace{3cm}
+
+    \noindent\linia
+
+    \begin{center}
+
+      \LARGE \textsc{\@title}
+
+         \end{center}
+
+     \noindent\linia
+
+    \vspace{0.5cm}
+
+    \begin{flushright}
+
+    \begin{minipage}{5cm}
+
+    \textit{\small Autorzy:}\\
+
+    \normalsize \textsc{\@author} \par
+
+    \end{minipage}
+
+
+     \end{flushright}
+
+    \vspace*{\stretch{6}}
+
+
+  \end{titlepage}%
+
+}
+
+\makeatother
+
+\author{Natalia Strawa\\
+		Jakub Jackowski}
+
+\title{Automat komórkowy - Gra w życie}
+\renewcommand*\thesection{\arabic{section}} % zmiana numeracji sekcji 0.X -> X 
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\setcounter{page}{2}
+\thispagestyle{fancy}
+\newpage
+
+\section{Opis ogólny}
+\subsection{Nazwa projektu}
+
+Automat komórkowy - Gra w życie
+\subsection{Nazwa programu}
+
+\begin{verbatim}
+gra_w_zycie
+\end{verbatim}
+\section{Opis ogólny}
+
+
+\subsection{Poruszany problem}
+
+Program będzie symulował automat komórkowy. Automat komórkowy to system składający się z pojedynczych komórek, znajdujących się obok siebie. Przylegające komórki tworzą siatkę dwuwymiarową. Każda z komórek może przyjąć jeden ze stanów - martwa/żywa. Stan wszystkich komórek w danej chwili to generacja.  Stan komórki zmieniany jest zgodnie z zasadami, które definiują, w jaki sposób nowy stan komórki zależy od jej obecnego stanu i stanu jej sąsiadów. Stany żywy i martwy będą oznaczane kolorami czarnym i białym. Program będzie umożliwiał utworzenie generacji, biorąc pod uwagę sąsiedztwo Moore'a: 
+8 przylegających komórek (znajdujących się: na południu, na południowym-zachodzie, na zachodzie, na północnym-zachodzie, na północy, na północnym-wschodzie, na wschodzie i na południowym-wschodzie)
+Zasady do utworzenia nowej generacji:
+\begin{itemize}
+	\item Martwa komórka, która ma dokładnie 3 żywych sąsiadów, staje się żywa.
+	\item Żywa komórka z 2 albo 3 żywymi sąsiadami pozostaje nadal żywa; przy innej liczbie sąsiadów umiera.
+	
+\end{itemize}
+\subsection{Użytkownik docelowy}
+
+Studenci kierunków informatycznych zainteresowani tematem automatów komórkowych.
+\section{Opis funkcjonalności}
+\subsection{Jak korzystać z programu}
+Aby uruchomić program, należy stworzyć plik z początkową generacją, wpisać wybrane flagi przy uruchomieniu i postępować według instrukcji znajdujących się na ekranie.
+\subsection{Uruchomienie programu}
+\begin{verbatim}
+./gra_w_zycie -FILE file_path [ -FINAL file_path ] [ -STOP number_of_generations ] [ -PNG <a,b> | a b c … ] [ -TXT <a,b> | a b c … ] 
+\end{verbatim}
+albo
+\begin{verbatim}
+./gra_w_zycie -FILE file_path [ -SBS ]
+\end{verbatim}
+\subsection{Możliwości programu}
+\begin{itemize}
+\item Przeprowadzenie zadanej przez użytkownika liczby generacji.
+\item Odczytywanie generacji z pliku.
+\item Możliwość obserwacji stanu kolejnych generacji krok po kroku.
+\item Generowanie obrazów przedstawiających stan wybranych generacji.
+\item Zapisywanie bieżącej generacji do pliku.
+\end{itemize}
+\section{Format danych i struktura plików}
+\subsection{Pojęcia i pola formularza (słownik)}
+\textbf{Plansza} - zbiór przylegających do siebie komórek, w postaci dwuwymiarowej siatki.\\
+\\
+\textbf {Komórka} - pojedynczy element planszy, który może znajdować się w jednym z dwóch stanów, zgodnych z zasadami “Gry w życie” Johna Conwaya.\\
+\\
+\textbf {Generacja} - pojedyncza plansza przedstawiająca aktualny stan wszystkich komórek.\\
+\\
+\textbf {Martwa komórka} - komórka w stanie “martwym”, reprezentowana przez biały piksel w generacji.\\
+\\
+\textbf {Żywa komórka} - komórka w stanie “żywym”, reprezentowana przez czarny piksel w generacji.\\
+\\
+\textbf {Sąsiad} - komórka przylegająca do danej komórki, znajdująca się na: północy, północnym wschodzie, wschodzie, południowym wschodzie, południu, południowym zachodzie, zachodzie lub północnym zachodzie. Dla komórek, które znajdują się na brzegach siatki i nie mają niektórych sąsiadów, ustala się położenie sąsiada po drugiej stronie siatki od pierwotnie oczekiwanego sąsiada.
+\subsection{Struktura katalogów}
+Pliki Main.c, Board.c, Board.h, Life\_generator.c, Life\_generator.h, Make\_png.c, Make\_png.h oraz podkatalogi Tests, Images, Generations będą przechowywane w katalogu Gra\_w\_zycie.
+\subsection{Przechowywanie danych w programie}
+Generacje będą przechowywane w strukturze Board, która zawiera wskaźnik na tablicę dwuwymiarową charów, liczbę wierszy oraz liczbę kolumn.
+\subsection{Dane wejściowe}
+\begin{itemize}
+	\item Plik z konfiguracją początkową.
+\end{itemize}
+
+\subsection{Dane wyjściowe}
+\begin{itemize}
+	\item Poszczególne generacje w postaci obrazów PNG.
+	\item Poszczególne generacje w postaci plików tekstowych.
+\end{itemize}
+
+\section{Scenariusz działania programu}
+\subsection{Scenariusz ogólny}
+\begin{itemize}
+\item Uruchomienie.
+\item Wczytanie danych z pliku do struktury Board.
+\item Przeprowadzenie zadanej przez użytkownika liczby generacji.
+\item Zapisanie konfiguracji wynikowej do pliku i stworzenie na jego podstawie pliku PNG.
+\item Zakończenie działania programu.
+\end{itemize}
+\subsection{Scenariusz szczegółowy}
+\subsubsection{Uruchomienie bez opcji -SBS}
+\begin{itemize}
+\item Wczytanie danych z pliku i zapisanie do struktury Board,
+w przypadku błędu związanego z otworzeniem pliku wyświetlany jest odpowiedni komunikat.
+\item Wykonanie zadanej przez użytkownika liczby generacji,
+w przypadku braku limitu generacje wykonane zostaną domyślną liczbę razy.
+\item W przypadku podania flag -PNG lub -TXT odpowiednie generacje zostaną zapisane w formacie PNG lub do pliku tekstowego,
+w przypadku podania numerów generacji wybiegających poza ich ostateczną liczbę zapisane zostaną jedynie generacje mieszczące się w ostatecznym zakresie.
+\item Wygenerowanie końcowej generacji i zapisanie jej do pliku tekstowego oraz w formacie PNG.
+\end{itemize}
+\subsubsection{Uruchomienie z opcją -SBS}
+\begin{itemize}
+\item Wczytanie danych z pliku i zapisanie do struktury Board,
+w przypadku błędu związanego z otworzeniem pliku wyświetlany jest odpowiedni komunikat.
+\item Wydrukowanie na stdout poglądowej generacji.
+\item Zapytanie użytkownika o wybór jednej z 4 opcji:
+\begin{itemize}
+\item Zapis aktualnej generacji do pliku tekstowego.
+\item Zapis aktualnej generacji w formacie PNG.
+\item Przejście do następnej generacji.
+\item Zakończenie programu.
+\end{itemize}
+\item Zapisanie końcowej generacji do pliku tekstowego oraz w formacie PNG.
+\end{itemize}
+\section{Testowanie}
+\subsection{Ogólny przebieg testowania}
+Poszczególne funkcje w programie będą testowane za pomocą testów jednostkowych pisanych ręcznie podczas tworzenia programu.
+\end{document}

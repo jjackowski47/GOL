@@ -1,0 +1,4 @@
+To jest folder, w którym będą zapisywane generacje w postaci obrazów w formacie PNG.
+
+Z obrazów można stworzyć animację przedstawiającą przebieg całej gry w życie za pomocą narzędzia ImageMagic:
+convert -delay 20 -loop 0 *.png gra_w_zycie.gif

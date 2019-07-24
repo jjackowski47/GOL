@@ -1,0 +1,463 @@
+\documentclass[12pt,a4paper,notitlepage]{report}
+
+\usepackage{polski}
+
+\usepackage[T1]{fontenc}
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{ \centering \thepage \hspace{1pt} $\backslash$ \pageref{LastPage}}
+\rhead{Automat komórkowy - Gra w życie}
+\lhead{Sprawozdanie końcowe}
+
+
+\makeatletter
+
+\newcommand{\linia}{\rule{\linewidth}{0.4mm}}
+
+\renewcommand{\maketitle}{\begin{titlepage}
+\thispagestyle{fancy}
+		
+		
+		\vspace*{1cm}
+		
+		\begin{center}
+			
+			\Large
+			
+			Sprawozdanie końcowe
+			
+		\end{center}
+		
+		\vspace{3cm}
+		
+		\noindent\linia
+		
+		\begin{center}
+			
+			\LARGE \textsc{\@title}
+			
+		\end{center}
+		
+		\noindent\linia
+		
+		\vspace{0.5cm}
+		
+		\begin{flushright}
+			
+			\begin{minipage}{5cm}
+				
+				\textit{\small Autorzy:}\\
+				
+				\normalsize \textsc{\@author} \par
+				
+			\end{minipage}
+			
+			
+		\end{flushright}
+		
+		\vspace*{\stretch{6}}
+		
+		
+	\end{titlepage}%
+	
+}
+
+\makeatother
+
+\author{Natalia Strawa\\
+	Jakub Jackowski}
+
+\title{Automat komórkowy - Gra w życie}
+\renewcommand*\thesection{\arabic{section}} % zmiana numeracji sekcji 0.X -> X 
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\setcounter{page}{2}
+\thispagestyle{fancy}
+\newpage
+\section{Specyfikacja funkcjonalna}
+
+\subsection{Przeznaczenie}
+\large\textbf{ Automat komórkowy - Gra w życie Johna Conwaya}\\
+Program symuluje automat komórkowy “Gra w życie” według zasad Johna Conwaya. Z pliku zawierającego konfigurację początkową odczytuje wymiary planszy oraz współrzędne żywych komórek i na tej podstawie tworzy kolejne generacje. Dodatkowo program umożliwia zapis wybranych przez użytkownika generacji jako plik tekstowy lub obraz w formacie PNG. Program może działać w dwóch trybach “Step by step” - przedstawiając każdą generację w formie poglądowej i pytając użytkownika o wybór jednej z opcji oraz w trybie domyślnym z możliwością wyboru konkretnych generacji do zapisu.
+
+\subsection{Wywołanie}
+Program wywołujemy pisząc:
+\begin{verbatim}
+./gra_w_zycie [opcja] …
+\end{verbatim}
+gdzie dopuszczalne opcje to:
+\begin{itemize}
+	\item
+	\begin{verbatim}
+	 -FILE file_path
+	\end{verbatim}
+	Podaj ścieżkę do pliku z konfiguracją początkową, od której rozpocznie się symulacja “Gry w życie”.
+	
+	\item
+	\begin{verbatim}
+	-FINAL file_path
+	\end{verbatim}
+	Podaj ścieżkę do pliku, w którym ma zostać zapisana ostatnia konfiguracja wygenerowana w danej symulacji “Gry w życie”.
+	
+	\item
+	\begin{verbatim}
+	-SBS
+	\end{verbatim}
+	Uruchom symulację w trybie “step by step”. W każdym kroku jest możliwość wyboru jednej z czterech opcji: zapis aktualnej generacji w formacie PNG, zapis w formacie TXT, przejście do następnej generacji i zakończenie działania programu.
+	
+	\item
+	\begin{verbatim}
+	-STOP number_of_generations
+	\end{verbatim}
+	Podaj liczbę generacji, które mają się wykonać w danej symulacji.
+	
+	\item
+	\begin{verbatim}
+	-PNG <a,b> | a b c ...
+	\end{verbatim}
+	Podaj przedział generacji \verb|<a,b>| od \verb|a| do \verb|b| włącznie lub wypisz konkretne numery generacji \verb|a b c …| , z których chcesz utworzyć obrazy PNG.
+	
+	\item
+	\begin{verbatim}
+	-TXT <a,b> | a b c …
+	\end{verbatim}
+	Podaj przedział generacji \verb|<a,b>| od \verb|a| do \verb|b| włącznie lub wypisz konkretne numery generacji \verb|a b c …| , które chcesz zapisać do pliku tekstowego.
+	
+\end{itemize}
+
+\subsection{Dane wejściowe}
+Plik tekstowy o postaci
+\begin{verbatim}
+R C
+i0 j0
+i1 j1
+i2 j2
+…
+\end{verbatim}
+gdzie:
+\verb|R,C| są liczbami naturalnymi oznaczającymi kolejno liczbę wierszy oraz kolumn planszy,
+\verb|i0 j0, i1 j1, … , in jn|  są liczbami naturalnymi z zakresu \verb|<R, C>| oznaczającymi współrzędne komórek żywych.
+
+\subsection{Format wyników}
+Plik tekstowy o takiej samej strukturze jak dane wejściowe oraz plik w postaci obrazu w formacie PNG, na którym białe piksele oznaczają komórki żywe, a czarne - martwe.
+
+\section{Architektura kodu}
+Program składa się z czterech modułów: z modułu \verb|Main.c|, który wczytuje i parsuje argumenty oraz obsługuje resztę modułów, z modułu \verb|Board.h|, \verb|Board.c|, który służy do wczytywania, przechowywania oraz zapisywania generacji, z modułu \verb|Life_generator.h|, \verb|Life_generator.c|, który tworzy kolejne generacje komórek oraz z modułu \verb|Make_png.h|, \verb|Make_png.c|, który tworzy plik PNG przedstawiający daną generację i zapisuje go.
+
+\newpage
+\begin{flushleft}
+\large\textbf{Bardziej szczegółowy opis modułów}
+\end{flushleft}
+
+\begin{enumerate} 
+\item\textbf{Moduł} \verb|Main.c|\\
+
+\textbf{Elementy modułu:}\\
+\begin{itemize}
+\item funkcja \verb|parse_range()| parsująca argumenty flag \verb|-TXT| oraz \verb|-PNG| w postaci zakresu \verb|"<a,b>"| i zapisująca granice do zmiennych \verb|from, to|
+
+\item funkcja \verb|parse_list()| parsująca argumenty flag \verb|-TXT| oraz \verb|-PNG| w postaci listy indeksów generacji \verb|"a b c d …"| i zapisująca indeksy do wektora \verb|generation_index_list|
+
+\item funkcja \verb|main()| obsługująca argumenty podane przy wywołaniu przy pomocy funkcji \verb|getopt()|, a następnie na ich podstawie uruchamia odpowiednie części programu lub wyświetla komunikaty o błędach
+
+\end{itemize}
+
+Połączenia: \verb|Board.c, Life_generator.c, Make_png.c|\\
+
+\item\textbf{Moduł} \verb|Board.c Board.h|\\
+\\
+\textbf{Elementy modułu:}
+\begin{itemize}
+\item struktura \verb|Board| przechowująca generację: liczbę kolumn, liczbę wierszy oraz macierz przedstawiającą generację
+\item funkcja \verb|read_config()| czytająca plik zawierający generację oraz zapisująca generację do struktury \verb|Board|
+\item funkcja \verb|save_config()| zapisująca generację do pliku tekstowego
+\end{itemize}
+Połączenia: \verb|Main.c, Life_generator.c,  Make_png.c|\\
+
+\item\textbf{Moduł} \verb|Life_generator.c Life_generator.h|\\
+\\
+\textbf{Elementy modułu:}
+\begin{itemize}
+\item funkcja \verb|generate()| tworząca nową generację na podstawie reguł “Gry w życie” według Johna Conwaya
+\item funkcja \verb|count_neighbours()| obliczająca ilość żywych sąsiadów dla danej komórki
+\item funkcja \verb|edge()| obliczająca indeksy sąsiadów dla danej komórki, gdy pierwotne indeksy wykraczają poza zakres planszy
+\item funkcja \verb|print()| wypisująca na stdout planszę z daną generacją
+\end{itemize}
+
+Połączenia: \verb|Main.c, Board.c|
+
+\item\textbf{Moduł} \verb|Make_png.c Make_png.h|\\
+\\
+\textbf{Elementy modułu:}
+\begin{itemize}
+\item funkcja \verb|process_file()| ustalająca kolor dla poszczególnych pikseli
+\item funkcja \verb|write_png_file()| pisząca plik PNG na podstawie wyników utworzonych przez funkcję \verb|process_file()|.
+\end{itemize}
+Połączenia: \verb|Main.c, Board.c|\\
+\\
+\end{enumerate}
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{diagram.jpg}
+	\caption{Diagram modułów.}
+\end{figure}
+
+\section{Testy}
+Pojedyncze funkcje w programie zostały przetestowane przez napisane przez nas ręcznie testy jednostkowe.
+\begin{itemize}
+	\item\textbf {Test funkcji} \verb|read_config|\\
+	\\
+	\textbf{Prototyp:} \verb|int does_read_config_read_correctly(FILE* in)|\\
+	\\
+	\textbf{Zadanie:} Sprawdzenie poprawności czytania pliku oraz zapisywania generacji do struktury \verb|Board| przez funkcję \verb|read_config|.\\
+	\\
+	\textbf{Algorytm:}
+	\begin{enumerate}
+	\item Funkcja \verb|read_config| czyta generację z pliku i zapisuje ją do struktury \verb|Board|.
+	\item Funkcja testująca sprawdza, czy liczby kolumn i wierszy zgadzają się z zapisanymi w pliku, jeśli tak funkcja kontynuuje testy, w przeciwnym wypadku funkcja zwraca wartość \verb|0|.
+	\item Funkcja testująca iteruje po tablicy przechowującej generację. Jeśli w komórce znajduje się \verb|1|, funkcja sprawdza, czy indeksy tej komórki zgadzają się z indeksami zapisanymi w pliku. Jeśli w komórce znajduje się wartość inna niż \verb|1| i \verb|0|, funkcja zwraca wartość \verb|0|.
+	\item Jeśli funkcja testowana przeszła test pomyślnie, funkcja testująca zwraca wartość \verb|1|.
+	\end{enumerate}
+
+	Do testu został użyty plik o nazwie \verb|testowy_plik_z_konfiguracja.txt|.\\
+	
+	\item\textbf {Test funkcji} \verb|save_config|\\
+	\\
+	\textbf{Prototyp:} \verb|int does_save_config_save_correctly()|\\
+	\\
+	\textbf{Zadanie:} Sprawdzenie poprawności zapisywania generacji do pliku przez funkcję \verb|save_config|.\\
+	\\
+	\textbf{Algorytm:}
+	\begin{enumerate}
+		\item Funkcja \verb|read_config| czyta generację z pliku i zapisuje ją do struktury \verb|Board|.
+		\item Funkcja \verb|save_config| zapisuje tą generację do pliku o nazwie \verb|save_config_test.txt|.
+		\item Z racji tego, że korzystamy z tego samego pliku, co w teście funkcji \verb|read_config|, to do sprawdzenia poprawności zapisywania do pliku korzystamy z funkcji \verb|does_read_config_read_correctly|.
+		\item Funkcja testująca zwraca wartość \verb|1| jeśli plik został zapisany poprawnie, a w przeciwnym wypadku wartość \verb|0|.
+	\end{enumerate}
+
+		Do testu zostały użyte pliki \verb|testowy_plik_z_konfiguracja.txt| oraz \verb|save_config_test.txt|.\\
+		
+	\item\textbf {Test funkcji} \verb|edge|\\
+	\\
+	\textbf{Prototyp:} \verb|int does_edge_work_correctly()|\\
+	\\
+	\textbf{Zadanie:} Sprawdzenie poprawności obliczeń wykonywanych przez funkcję \verb|edge|.\\
+	\\
+	\textbf{Algorytm:}
+	\begin{enumerate}
+	\item Funkcja testująca zwraca wartość \verb|0| jeśli funkcja edge dla przykładowych wywołań zwróciła nieprawidłową wartość.
+	\item Jeśli funkcja testowana dla każdego wywołania zwróciła oczekiwaną wartość, funkcja testująca zwraca wartość \verb|1|.
+	\end{enumerate}
+
+
+	\item\textbf {Test funkcji} \verb| count_neighbours|\\
+	\\
+	\textbf{Prototyp:} \verb| int does_count_neighbours_count_correctly()|\\
+	\\
+	\textbf{Zadanie:} Sprawdzenie poprawności ustalania liczby sąsiadów dla danej komórki przez funkcję \verb|count_neighbours|.\\
+	\\
+	\textbf{Algorytm:}
+	\begin{enumerate}
+		\item Funkcja \verb|read_config| czyta generację z pliku i zapisuje ją do struktury \verb|Board|.
+		\item Tablica \verb|index| przechowuje liczbę sąsiadów każdej komórki przykładowej generacji.
+		\item Funkcja testująca iteruje po tablicy przechowującej generację i porównuje liczbę sąsiadów zwracaną przez funkcję \verb|count_neighbours| z wartością oczekiwaną z tablicy \verb|index|. Jeśli wartości się różnią funkcja zwraca wartość \verb|0|.
+		\item Funkcja zwraca wartość \verb|1|, jeśli wszystkie wartości zwrócone przez funkcję testowaną są równe wartościom oczekiwanym.
+	\end{enumerate}
+Do testu zostały użyte pliki \verb|testowy_plik_z_konfiguracja_1.txt| oraz \verb|count_neighbours_test.txt|.
+	
+	\item\textbf {Test funkcji} \verb|generate|\\
+	\\
+	\textbf{Prototyp:} \verb|int does_generate_generate_correctly()|\\
+	\\
+	\textbf{Zadanie:} Sprawdzenie poprawności ustalania stanu komórki w następnej generacji przez funkcję \verb|generate|.\\
+	\\
+	\textbf{Algorytm:}
+	\begin{enumerate}
+		\item Funkcja \verb|read_config| czyta generację z pliku i zapisuje ją do struktury \verb|Board|.
+		\item Funkcja \verb|generate| tworzy kolejną generację na podstawie wczytanej generacji.
+		\item Funkcja \verb|read_config| czyta z pliku generację, która powinna być rezultatem działania funkcji generate.
+		\item Funkcja testująca iteruje po tablicy przechowującej generację wygenerowaną przez funkcję \verb|generate| i porównuje ją z generacją oczekiwaną. Jeśli porównywane komórki różnią się od siebie funkcja zwraca wartość \verb|0|.
+		\item Funkcja zwraca wartość \verb|1|, jeśli wartości wszystkich komórki generacji wygenerowanej przez funkcję \verb|generate| są równe wartościom oczekiwanym.
+		\end{enumerate}
+
+Do testu zostały użyte pliki \verb|testowy_plik_z_konfiguracja.txt| oraz\\ \verb|generate_test.txt|.\\
+
+\item\textbf {Testy pamięci}\\
+\\
+Do sprawdzenia jak program radzi sobie z gospodarowaniem pamięcią użyliśmy narzędzia \verb|valgrind|. Przetestowaliśmy oba tryby:
+\\
+\\
+\textbf{Bez opcji SBS}\\
+\\
+\small{
+\verb|$ valgrind --leak-check=yes ./gra_w_zycie -FILE Configurations/flowers.txt|
+\verb|-PNG "<10,41>" -TXT "<2,9>" -STOP 100 -FINAL abc|
+\begin{verbatim}
+==28719== Memcheck, a memory error detector
+==28719== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==28719== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+\end{verbatim}}
+\verb|==28719== Command: ./gra_w_zycie -FILE Configurations/flowers.txt -PNG \<10,41\>|\\
+\verb|-TXT \<2,9\> -STOP 100 -FINAL abc|
+\begin{verbatim}
+==28719==
+==28719==
+==28719== HEAP SUMMARY:
+==28719==     in use at exit: 0 bytes in 0 blocks
+==28719==   total heap usage: 6,587 allocs, 6,587 frees, 5,913,525 bytes allocated
+==28719==
+==28719== All heap blocks were freed -- no leaks are possible
+==28719==
+==28719== For counts of detected and suppressed errors, rerun with: -v
+==28719== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+\end{verbatim}
+
+\large\textbf{z opcją SBS}
+\small{
+\begin{verbatim}
+$ valgrind --leak-check=yes ./gra_w_zycie -FILE Configurations/flowers.txt -SBS
+
+==28730== Memcheck, a memory error detector
+==28730== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==28730== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==28730== Command: ./gra_w_zycie -FILE Configurations/flowers.txt -SBS
+==28730==
+==28730==
+==28730== HEAP SUMMARY:
+==28730==     in use at exit: 0 bytes in 0 blocks
+==28730==   total heap usage: 483 allocs, 483 frees, 755,857 bytes allocated
+==28730==
+==28730== All heap blocks were freed -- no leaks are possible
+==28730==
+==28730== For counts of detected and suppressed errors, rerun with: -v
+==28730== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+\end{verbatim}}
+
+\item\large\textbf {Testy wydajnościowe}\\
+\\
+Sprawdzamy ile czasu potrzebuje program aby przetworzyć różne wielkości danych wejściowych.
+\begin{itemize}
+	\item 10 generacji:
+	
+	\small\verb|$ time ./gra_w_zycie -FILE Configurations/flowers.txt -STOP 10 -PNG "<1,10>"|\\
+	\verb|-TXT "<1,10>"|
+	\begin{verbatim}
+	real    0m0,039s
+	user    0m0,003s
+	sys     0m0,006s
+	
+	\end{verbatim}
+	
+	\large\item 100 generacji:
+	
+	\small\verb|$ time ./gra_w_zycie -FILE Configurations/flowers.txt -STOP 100 -PNG "<1,100>"|
+	\verb|-TXT "<1,100>"|
+	\begin{verbatim}
+	real    0m0,357s
+	user    0m0,037s
+	sys     0m0,028s
+	
+	
+	\end{verbatim}
+	
+	\large\item 1000 generacji:
+	
+	\small\verb|$ time ./gra_w_zycie -FILE Configurations/flowers.txt -STOP 1000|\\
+	\verb|-PNG "<1,1000>" -TXT "<1,1000>"|
+	\begin{verbatim}
+	real    0m3,769s
+	user    0m0,381s
+	sys     0m0,264s
+	
+	\end{verbatim}
+	
+	\large\item 10000 generacji:
+	
+	\small\verb|$ time ./gra_w_zycie -FILE Configurations/flowers.txt -STOP 10000|\\
+	\verb|-PNG "<1,10000>" -TXT "<1,10000>"|
+	\begin{verbatim}
+	real    0m37,972s
+	user    0m3,976s
+	sys     0m2,532s
+	
+	\end{verbatim}
+	
+	\large Duża część czasu działania programu jest wymuszona zapisem generacji, dla porównania test wydajności bez zapisu dla 10000 generacji:
+	\small\begin{verbatim}
+	$ time ./gra_w_zycie -FILE Configurations/flowers.txt -STOP 10000
+
+	real    0m2,116s
+	user    0m2,076s
+	sys     0m0,020s
+	\end{verbatim}
+	
+	
+\end{itemize}
+	
+\end{itemize}
+
+\section{Zmiany względem specyfikacji}
+\subsection{Struktura katalogów}
+Zostały utworzone nowe katalogi Configurations, w którym są przechowywane przykładowe konfiguracje początkowe, Dokumentacja, w którym są przechowywane wszystkie dokumenty związane z programem oraz plik Makefile z możliwością kompilacji programu, usuwania plików wygenerowanych podczas kompilacji oraz usuwania zawartości katalogów Images oraz Generations wygenerowanych podczas działania programu.
+
+\subsection{Scenariusz działania programu}
+Zrezygnowaliśmy z automatycznego zapisu końcowej generacji, uznaliśmy to za zbędną funkcjonalność, ponieważ służą do tego odpowiednie opcje wywołania programu.
+
+\subsection{Nowe funkcje}
+\textbf{Prototyp:} \verb|void parse_range(char *string, int *from, int *to)|\\
+\\
+\textbf{Zadanie:} Parsuje argumenty flag \verb|-TXT| oraz \verb|-PNG| w postaci zakresu \verb|"<a,b>"| i zapisuje graniczne wartości do zmiennych \verb|from, to|.
+\begin{flushleft}
+\textbf{Algorytm:}
+Funkcja odczytuje argument w postaci \verb|"<a,b>"| i zapisuje wartość \verb|a| do zmiennej \verb|from| oraz \verb|b| do zmiennej \verb|to|.\\
+\end{flushleft}
+\begin{flushleft}
+\textbf{Wartość zwracana:} brak
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Prototyp:} \verb|int *parse_list(char *string)|\\
+\end{flushleft}
+\begin{flushleft}
+\textbf{Zadanie:} Parsuje argumenty flag \verb|-TXT| oraz \verb|-PNG| w postaci listy indeksów generacji \verb|"a b c d …"| i zapisuje indeksy do wektora \verb|generation_index_list|.
+\end{flushleft}
+\begin{flushleft}
+	\textbf{Algorytm:}
+	Funkcja dzieli argument na oddzielne słowa, zlicza liczbę słów, a następnie każde słowo przekształca na liczbę całkowitą \verb|int| i zapisuje liczby do wektora.
+\end{flushleft}
+\begin{flushleft}
+	\textbf{Wartość zwracana:} wskaźnik \verb|int*| do wektora zawierającego listę indeksów
+\end{flushleft}
+W funkcji zapisującej obrazy w formacie PNG została dodana nowa funkcjonalność zmiany rozdzielczości generowanych plików. Została utworzona zmienna \verb|resolution| o domyślnej wartości \verb|1|, która odpowiada za to jak bardzo powiększony ma zostać wygenerowany obraz.
+\newpage
+\section{Przykładowe wywołania}
+\subsection{Wywołanie programu w trybie SBS:}
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{wywolanie1.png}
+	\caption{Wywołanie w trybie SBS.}
+\end{figure}
+
+\subsection{Wywołanie z błędną nazwą pliku, wyświetla instrukcję używania programu.}
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{wywolanie2.png}
+	\caption{Wywołanie z błędną nazwą pliku.}
+\end{figure}
+\newpage
+\subsection{Przykładowe pliki wyjściowe}
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{png.jpg}
+	\caption{Pliki PNG dla całego przebiegu generacji z pliku flowers.txt (resolution = 10).}
+\end{figure}
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{szybowiec.jpg}
+	\caption{Pliki PNG dla kilku kolejnych generacji z pliku glider\_gun.txt (resolution = 10).}
+\end{figure}
+\end{document}

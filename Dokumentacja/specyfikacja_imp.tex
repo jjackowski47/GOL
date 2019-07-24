@@ -1,0 +1,241 @@
+\documentclass[12pt,a4paper,notitlepage]{report}
+
+\usepackage{polski}
+
+\usepackage[T1]{fontenc}
+
+
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot  { \centering \thepage \hspace{1pt} $\backslash$ \pageref{LastPage}}
+\rhead{Automat komórkowy - Gra w życie}
+\lhead{Specyfikacja implementacyjna}
+
+\makeatletter
+
+\newcommand{\linia}{\rule{\linewidth}{0.4mm}}
+
+\renewcommand{\maketitle}{\begin{titlepage}
+
+\thispagestyle{fancy}
+
+    \vspace*{1cm}
+
+    \begin{center}
+    
+    \Large
+
+    Specyfikacja implementacyjna
+    
+    \end{center}
+
+    \vspace{3cm}
+
+    \noindent\linia
+
+    \begin{center}
+
+      \LARGE \textsc{\@title}
+
+         \end{center}
+
+     \noindent\linia
+
+    \vspace{0.5cm}
+
+    \begin{flushright}
+
+    \begin{minipage}{5cm}
+
+    \textit{\small Autorzy:}\\
+
+    \normalsize \textsc{\@author} \par
+
+    \end{minipage}
+
+
+     \end{flushright}
+
+    \vspace*{\stretch{6}}
+
+
+  \end{titlepage}%
+
+}
+
+\makeatother
+
+\author{Natalia Strawa\\
+		Jakub Jackowski}
+
+\title{Automat komórkowy - Gra w życie}
+\renewcommand*\thesection{\arabic{section}} % zmiana numeracji sekcji 0.X -> X 
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\setcounter{page}{2}
+\thispagestyle{fancy}
+\newpage
+
+\section{Informacje ogólne}
+\subsection{Uruchomienie programu z linii poleceń}
+./gra\_w\_zycie -FILE file\_path [ -FINAL result\_file\_path ] [ -SBS ] [ -STOP number\_of\_ generations ] [ -PNG (a,b) | a b c … ] [ -TXT (a,b) | a b c … ] 
+
+\subsection{Opis flag}
+\begin{itemize}
+	\item -FILE file\_path\\
+	Użytkownik podaje ścieżkę do pliku z konfiguracją początkową, od której rozpocznie się symulacja “Gry w życie”.
+	\item -FINAL file\_path\\
+	Użytkownik podaje ścieżkę do pliku, w którym ma zostać zapisana ostatnia konfiguracja wygenerowana w danej symulacji “Gry w życie”.
+	\item -SBS\\
+	Pozwala uruchomić symulację w trybie “Step by step”. Użytkownik w każdym kroku otrzymuje aktualną generację, która zostaje zapisana w formacie png oraz zostaje zapytany o zapisanie aktualnej konfiguracji do pliku txt.
+	\item -STOP number\_of\_generations\\
+	Użytkownik podaje wartość graniczną ilości generacji, które mają się wykonać w danej symulacji.
+	\item -PNG (a,b) | a b c ...\\
+	Użytkownik podaje przedział generacji (a,b) od a do b włącznie lub wypisuje konkretne numery generacji a, b, c, … , z których chce utworzyć obrazy .png.
+	\item -TXT (a,b) | a b c …\\
+	Użytkownik podaje przedział generacji (a,b) od a do b włącznie lub wypisuje konkretne numery generacji a, b, c, … , które chce zapisać do pliku tekstowego
+	
+\end{itemize}	
+
+\section{Opis modułów}
+
+\subsection{Main.c}
+\begin{itemize}
+\item Wczytanie i parsowanie argumentów
+\item Obsługa reszty modułów
+\end{itemize}
+Połączenia: File\_reader.c
+
+\subsection{File\_reader.c}
+\begin{itemize}
+\item Czytanie pliku z konfiguracją
+\item Zapisywanie konfiguracji do struktury Board
+\end{itemize}
+Połączenia: Main.c, Board.h
+
+\subsection{Board.h}
+Przechowywanie generacji:
+\begin{itemize}
+\item Liczba kolumn
+\item Liczba wierszy
+\item Macierz przedstawiająca daną generację
+\end{itemize}
+Połączenia: File\_reader.c, Life\_genrator.c
+
+\subsection{Cell\_adjacency.c}
+\begin{itemize}
+\item Obliczenie ilości żywych sąsiadów dla danej komórki
+\item Obsługa komórek leżących na obrzeżach planszy
+\end{itemize}
+Połączenia: Life\_genrator.c
+
+\subsection{Life\_generator.c}
+\begin{itemize}
+\item Wytworzenie nowej generacji na podstawie reguł “Gry w życie” według Johna Conwaya
+\item Zapisanie nowej generacji do tymczasowej planszy
+	
+\end{itemize}
+Połączenia: Board.h, Cell\_adjacency.c, Save\_generation.c, Make\_png.c
+
+\subsection{Save\_generation.c}
+\begin{itemize}
+\item Zapisanie generacji do pliku tekstowego
+\end{itemize}
+Połączenia: Life\_generator.c
+
+\subsection{Make\_png.c}
+\begin{itemize}
+\item Stworzenie i zapisanie obrazu png przedstawiającego daną generację
+\end{itemize}
+Połączenia: Life\_generator.c
+
+
+\section{Opis funkcji}
+
+\subsection{Funkcja read}
+\textbf {Prototyp}: Board* read(FILE* in)\\
+\textbf {Zadanie}: Czytanie siatki z pliku tekstowego.\\
+\textbf {Algorytm}:
+\begin{enumerate} 
+\item Funkcja czyta z pliku ilość wierszy i kolumn siatki oraz tworzy tablicę o takich wymiarach.
+\item Funkcja wypełnia tablicę zerami.
+\item Funkcja czyta z pliku współrzędne komórek tablicy, które przechowują wartość 1 oraz wypełnia te komórki jedynkami.
+\end{enumerate}
+\textbf {Wartość zwracana}: Wskaźnik na strukturę Board.
+
+\subsection{Funkcja count\_neighbours}
+\textbf {Prototyp}: int count\_neighbours (Board* board, int x, int y)\\
+\textbf {Zadanie}: Liczenie ilość żywych sąsiadów dla danej komórki.\\
+\textbf {Algorytm}:
+\begin{enumerate} 
+	\item Funkcja zlicza ilość żywych sąsiadów dla danej komórki o indeksach $\lbrack x \rbrack \lbrack y \rbrack$ sumując wartości komórek o indeksach od $\lbrack x+i\rbrack\lbrack y+j\rbrack$ gdzie $i,j \in C \wedge i,j \in \langle -1,1 \rangle$. Jeśli indeks $x+i$ jest mniejszy od zera lub równy ilości wierszy tabeli i tak samo jeśli indeks $y+j$ jest mniejszy od zera lub równy ilości kolumn tabeli, funkcja wywołuje funkcję edge oraz sumuje komórki o indeksach obliczonych przez funkcję edge.
+	\item Funkcja odejmuje wartość komórki o indeksach $\lbrack x \rbrack \lbrack y \rbrack$ od obliczonej sumy.
+	
+\end{enumerate}
+\textbf {Wartość zwracana}: liczba żywych sąsiadów danej komórki
+
+\subsection{Funkcja print}
+\textbf {Prototyp}: void print(Board* board)\\
+\textbf {Zadanie}: Poglądowe wypisanie na stdout planszy z danej generacji\\
+\textbf {Algorytm}:
+\begin{enumerate} 
+	\item Funkcja wypisuje górną krawędź planszy w postaci dwóch znaków minus “--” w ilości równej ilości kolumn planszy
+	\item Funkcja iteruje po macierzy przechowującej daną generację i w przypadku 0 wypisuje dwa znaki spacji “  “, a w przypadku 1 dwuznak  “<>” symbolizujący żywą komórkę, na końcu każdego wiersza dopisując znak ”|” symbolizujący boczną krawędź planszy
+	\item Funkcja wypisuje dolną krawędź planszy w postaci dwóch znaków minus “--” w ilości równej ilości kolumn planszy
+	
+	
+\end{enumerate}
+\textbf {Wartość zwracana}: brak
+
+\subsection{Funkcja edge}
+\textbf {Prototyp}: int edge(int x, unsigned int mod)\\
+\textbf {Zadanie}: Ustalanie indeksów sąsiadów komórek znajdujących się na brzegach siatki.
+\\
+\textbf {Algorytm}:
+Funkcja otrzymuje indeks x oraz liczbę mod (liczbę wierszy lub kolumn siatki), dodaje x do mod i liczy resztę z dzielenia x przez mod.\\
+\textbf {Wartość zwracana}: indeks sąsiada danej komórki     
+
+\subsection{Funkcja generate}
+\textbf {Prototyp}: void generate (Board* generation)\\
+\textbf {Zadanie}: Poglądowe wypisanie na stdout planszy z danej generacji\\
+\textbf {Algorytm}:
+\begin{enumerate} 
+\item Funkcja tworzy tablicę o takich samych wymiarach jak siatka.
+\item Funkcja iteruje po kolejnych komórkach tablicy (siatki), określa stan komórki w kolejnej generacji i zapisuje go do nowej tablicy:
+\begin{itemize}
+\item jeśli liczba sąsiadów komórki jest równa 3, komórka staje się żywa, 
+\item jeśli liczba sąsiadów komórki jest różna od 2, komórka staje się martwa,
+\item w innym wypadku stan komórki się nie zmienia.
+\end{itemize}
+	
+\end{enumerate}
+\textbf {Wartość zwracana}: brak
+
+
+\section{Testowanie}
+\subsection{Użyte narzędzia}
+
+Pojedyncze funkcje w programie będą testowane przez napisane przez nas ręcznie testy jednostkowe. W miarę możliwości fragment programu napisany przez jedną osobę będzie testowany przez drugą, w celu wykrycia jak największej liczby błędów.
+
+\subsection{Konwencja}
+Pojedynczy test dla łatwiejszego zrozumienia jego przeznaczenia będzie nazywany w określony sposób:
+nazwa\_testowanej\_funkcji().TEST.numer\_testu
+
+Np. read().TEST.1
+
+\subsection{Warunki brzegowe}
+Szczególną uwagę podczas pisania testów zwrócimy na:
+\begin{itemize}
+	\item Jak program radzi sobie z gospodarowaniem pamięcią podczas zapisywania nowych generacji (czy nie ma nigdzie wycieków)
+	\item Jak wydajny jest nasz program, czyli w jakim czasie jest w stanie wygenerować przykładowe duże ilości generacji
+	\item Tworzenie obrazów png (czy obrazy są prawidłowo generowane, i czy są zgodne z odpowiednią generacją
+	
+\end{itemize}
+
+\end{document}

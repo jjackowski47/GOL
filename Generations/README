@@ -1,0 +1,3 @@
+To jest folder, w którym będą zapisywane generacje w postaci plików z konfiguracjami w formacie tekstowym.
+
+Pliki są kompatybilne z programem i można je ponownie wykorzystać jako konfiguracje początkową.
